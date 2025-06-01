@@ -1,17 +1,33 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Accueil - TCA Monitoring</title>
-  <link rel="stylesheet" href="static/css/style.css" />
+  <meta charset="UTF-8">
+  <title>Pyodide Worker Example</title>
 </head>
 <body>
-  <h1>Bienvenue sur le TCA Monitoring</h1>
+  <h1>Pyodide Worker Demo</h1>
+  <button id="run">Run Python Code</button>
+  <pre id="output"></pre>
 
-  <h2>Choisissez un profil</h2>
-  <div id="user-list"></div>
+  <script>
+    const output = document.getElementById('output');
+    const worker = new Worker('worker.js');
 
-  <script src="static/js/index.js"></script>
+    document.getElementById('run').addEventListener('click', () => {
+      worker.postMessage({
+        python: `
+def greet(name):
+    return f"Hello, {name}!"
+
+greet("World")
+`
+      });
+    });
+
+    worker.onmessage = (event) => {
+      output.textContent = event.data;
+    };
+  </script>
 </body>
 
 </html>
