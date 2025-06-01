@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Choix Utilisateur</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background-color: #f4eefc;
+    }
+
+    .navbar-brand img {
+      height: 60px;
+    }
+
+    .navbar-nav .nav-link {
+      margin: 0 1rem;
+    }
+
+    .profile-img-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    .profile-img::after {
+      content: "⏷";
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      font-size: 0.9rem;
+      background: white;
+      border-radius: 50%;
+      padding: 2px;
+      border: 1px solid #ccc;
+    }
+
+    .profile-img:hover {
+      box-shadow: 0 0 0 3px #d4b6f4;
+      transition: box-shadow 0.3s;
+    }
+
+    .profile-img {
+      width: 45px;
+      height: 45px;
+      object-fit: cover;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .content {
+      padding: 2rem;
+      background-color: #f9f4fd;
+      min-height: 100vh;
+    }
+
+    .card {
+      border: none;
+      background-color: #ffffff;
+    }
+
+    .alert-danger {
+      background-color: #f8d7da;
+      color: #842029;
+    }
+
+    .alert-success {
+      background-color: #d1e7dd;
+      color: #0f5132;
+    }
+
+    .dropdown-menu {
+      right: 0;
+      left: auto;
+    }
+
+    .section-title {
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .analysis-image {
+      width: 100%;
+      max-height: 350px;
+      object-fit: contain;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      cursor: zoom-in;
+    }
+
+    .graph-container {
+      position: relative;
+    }
+
+    .view-more-btn {
+      position: absolute;
+      bottom: 10px;
+      right: 15px;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 0.85rem;
+    }
+
+    .documents-section {
+      overflow-y: auto;
+    }
+
+    .alert-sidebar {
+      position: fixed;
+      top: 0;
+      right: -320px;
+      width: 300px;
+      height: 100vh;
+      background-color: #fff3cd;
+      border-left: 2px solid #f5c2c7;
+      z-index: 1050;
+      overflow-y: auto;
+      transition: right 0.3s ease;
+      box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .alert-sidebar.active {
+      right: 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Barre de navigation -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4">
+    <a class="navbar-brand" href="#">
+      <!-- Ajoute ton logo local si disponible -->
+      <img src="images/logo.png" alt="Logo OnlyFeed" />
+    </a>
+    <div class="collapse navbar-collapse justify-content-between">
+      <!-- Liens du menu -->
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link" href="#">🏠 Tableau de bord</a></li>
+        <li class="nav-item"><a class="nav-link" href="/">👥 Liste des patients</a></li>
+      </ul>
+      <!-- Recherche -->
+      <form class="d-flex me-3" role="search" style="flex: 1; max-width: 500px;">
+        <input class="form-control me-2 w-100" type="search" placeholder="Rechercher un patient..." aria-label="Search" />
+        <button class="btn btn-outline-secondary" type="submit">🔍</button>
+      </form>
+      <!-- Paramètres -->
+      <a href="#" class="btn btn-outline-secondary rounded-circle me-2" title="Paramètres">
+        <span class="fw-bold">⚙️</span>
+      </a>
+      <!-- Photo de profil -->
+      <div class="dropdown profile-img-container">
+        <img src="images/photo_connexion.jpg" alt="Photo de profil" class="profile-img dropdown-toggle" data-bs-toggle="dropdown" />
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" href="#">Préférences</a></li>
+          <li><a class="dropdown-item text-danger" href="#">Se déconnecter</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="content container my-4">
+    <h1>Users</h1>
+    <div class="row">
+      <!-- Premier profil -->
+      <div class="col-md-4">
+        <div class="card shadow mb-4 h-100">
+          <div class="card-body text-center">
+            <div class="pt-5 position-relative" style="margin-top: -60px;">
+              <!-- Photo de profil -->
+              <div class="position-relative d-flex justify-content-center">
+                <div class="position-relative">
+                  <img src="images/photo_profil_2.jpg" alt="Photo de profil" class="rounded-circle border border-3 border-white shadow" style="width: 160px; height: 160px; object-fit: cover;" />
+                  <label for="profileUpload1" class="btn btn-sm btn-secondary position-absolute bottom-0 end-0 rounded-circle p-1">✏️</label>
+                  <input type="file" id="profileUpload1" accept="image/*" hidden />
+                </div>
+              </div>
+              <!-- Infos patient -->
+              <div id="patient-info" class="mt-3">
+                <p><strong>Nom :</strong> <span id="info-nom">Nom Patient 1</span></p>
+                <p><strong>Prénom :</strong> <span id="info-prenom">Prénom 1</span></p>
+                <p><strong>Date de naissance :</strong> <span id="info-dob">01/01/1980</span></p>
+                <p><strong>Adresse :</strong> <span id="info-adresse">Adresse 1</span></p>
+                <p><strong>Profession :</strong> <span id="info-profession">Profession 1</span></p>
+              </div>
+              <!-- Bouton profil -->
+              <a href="/profile2">
+                <button class="btn btn-outline-primary btn-sm mt-2">Voir le profil</button>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Deuxième profil -->
+      <div class="col-md-4">
+        <div class="card shadow mb-4 h-100">
+          <div class="card-body text-center">
+            <div class="pt-5 position-relative" style="margin-top: -60px;">
+              <!-- Photo de profil -->
+              <div class="position-relative d-flex justify-content-center">
+                <div class="position-relative">
+                  <img src="images/photo_profil.jpg" alt="Photo de profil" class="rounded-circle border border-3 border-white shadow" style="width: 160px; height: 160px; object-fit: cover;" />
+                  <label for="profileUpload2" class="btn btn-sm btn-secondary position-absolute bottom-0 end-0 rounded-circle p-1">✏️</label>
+                  <input type="file" id="profileUpload2" accept="image/*" hidden />
+                </div>
+              </div>
+              <!-- Infos patient -->
+              <div id="patient-info" class="mt-3">
+                <p><strong>Nom :</strong> <span id="info-nom">Nom Patient 2</span></p>
+                <p><strong>Prénom :</strong> <span id="info-prenom">Prénom 2</span></p>
+                <p><strong>Date de naissance :</strong> <span id="info-dob">02/02/1990</span></p>
+                <p><strong>Adresse :</strong> <span id="info-adresse">Adresse 2</span></p>
+                <p><strong>Profession :</strong> <span id="info-profession">Profession 2</span></p>
+              </div>
+              <!-- Bouton profil -->
+              <a href="/profile1">
+                <button class="btn btn-outline-primary btn-sm mt-2">Voir le profil</button>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ajoute les scripts Bootstrap (optionnel) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
