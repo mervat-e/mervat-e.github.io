@@ -1,0 +1,731 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+  <meta charset="utf-8">
+  <title>Profil Utilisateur</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f4eefc;
+    }
+
+    .navbar-brand img {
+      height: 60px;
+    }
+
+    .navbar-nav .nav-link {
+      margin: 0 1rem;
+    }
+
+    .profile-img-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    .profile-img::after {
+      content: "⏷";
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      font-size: 0.9rem;
+      background: white;
+      border-radius: 50%;
+      padding: 2px;
+      border: 1px solid #ccc;
+    }
+
+    .profile-img:hover {
+      box-shadow: 0 0 0 3px #d4b6f4;
+      transition: box-shadow 0.3s;
+    }
+
+    .profile-img {
+      width: 45px;
+      height: 45px;
+      object-fit: cover;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .content {
+      padding: 2rem;
+      background-color: #f9f4fd;
+      min-height: 100vh;
+    }
+
+    .card {
+      border: none;
+      background-color: #ffffff;
+    }
+
+    .alert-danger {
+      background-color: #f8d7da;
+      color: #842029;
+    }
+
+    .alert-success {
+      background-color: #d1e7dd;
+      color: #0f5132;
+    }
+
+    .dropdown-menu {
+      right: 0;
+      left: auto;
+    }
+
+    .section-title {
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .analysis-image {
+      width: 100%;
+      max-height: 350px;
+      object-fit: contain;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      cursor: zoom-in;
+    }
+
+
+    .graph-container {
+      position: relative;
+    }
+
+    .view-more-btn {
+      position: absolute;
+      bottom: 10px;
+      right: 15px;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 0.85rem;
+    }
+
+    .documents-section {
+      overflow-y: auto;
+    }
+
+    .alert-sidebar {
+      position: fixed;
+      top: 0;
+      right: -320px;
+      width: 300px;
+      height: 100vh;
+      background-color: #fff3cd;
+      border-left: 2px solid #f5c2c7;
+      z-index: 1050;
+      overflow-y: auto;
+      transition: right 0.3s ease;
+      box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .alert-sidebar.active {
+      right: 0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Barre de navigation -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4">
+    <a class="navbar-brand" href="#">
+      <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo OnlyFeed">
+    </a>
+
+    <div class="collapse navbar-collapse justify-content-between">
+      <!-- Liens du menu -->
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link" href="#">🏠 Tableau de bord</a></li>
+        <li class="nav-item"><a class="nav-link" href="/">👥 Liste des patients</a></li>
+      </ul>
+
+      <!-- Recherche et paramètres -->
+      <form class="d-flex me-3" role="search" style="flex: 1; max-width: 500px;">
+        <input class="form-control me-2 w-100" type="search" placeholder="Rechercher un patient..." aria-label="Search">
+        <button class="btn btn-outline-secondary" type="submit">🔍</button>
+      </form>
+
+
+      <!-- Icône paramètres -->
+      <a href="#" class="btn btn-outline-secondary rounded-circle me-2" title="Paramètres">
+        <span class="fw-bold">⚙️</span>
+      </a>
+
+      <!-- Photo de profil déjà présente à droite -->
+      <div class="dropdown profile-img-container">
+        <img src="{{ url_for('static', filename='img/photo_connexion.jpg') }}" alt="Photo de profil"
+          class="profile-img dropdown-toggle" data-bs-toggle="dropdown">
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" href="#">Préférences</a></li>
+          <li><a class="dropdown-item logout-item text-danger" href="#">Se déconnecter</a></li>
+        </ul>
+      </div>
+    </div>
+
+
+
+  </nav>
+
+  <!-- Contenu principal -->
+  <div class="content">
+    <div class="container-fluid">
+      <div class="row" style="height: calc(100vh - 100px);">
+        <!-- Colonne gauche -->
+        <div class="col-md-4">
+          <div class="card shadow mb-4 h-100">
+            <div class="card-body text-center">
+              <div class="card-body text-center pt-5" style="position: relative;">
+
+                <!-- 📸 Image de profil modifiable -->
+                <!-- 📸 Photo de profil agrandie et centrée -->
+                <div class="position-relative d-flex justify-content-center" style="margin-top: -60px;">
+                  <div class="position-relative">
+                    <img src="{{ url_for('static', filename='img/photo_profil_2.jpg') }}" alt="Photo de profil"
+                      id="profileImage" class="rounded-circle border border-3 border-white shadow"
+                      style="width: 160px; height: 160px; object-fit: cover;">
+                    <label for="profileUpload"
+                      class="btn btn-sm btn-secondary position-absolute bottom-0 end-0 rounded-circle p-1">
+                      ✏️
+                    </label>
+                    <input type="file" id="profileUpload" accept="image/*" hidden>
+                  </div>
+                </div>
+
+
+                <!-- 🔁 Bouton d'alerte -->
+                {% set total_frequency_alerts = alerts.frequencies.hourly_alert|length +
+                alerts.frequencies.timeslot_alert|length %}
+                {% set total_alerts = result.problematic_count + alerts.trends|length + alerts.influencers|length +
+                total_frequency_alerts %}
+
+                {% if total_alerts > 0 %}
+                <div class="mb-3">
+                  <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#globalAlertsModal">
+                    ⚠️ {{ total_alerts }} alerte{{ 's' if total_alerts > 1 }} détectée{{ 's' if total_alerts > 1 }}
+                  </button>
+                </div>
+                {% endif %}
+
+
+                <!-- 📝 Informations patient -->
+                <div id="patient-info">
+                  <p><strong>Nom :</strong> <span id="info-nom">{{ user.name or 'Non renseigné' }}</span></p>
+                  <p><strong>Prénom :</strong> <span id="info-prenom">{{ user.firstname or 'Non renseigné' }}</span></p>
+                  <p><strong>Date de naissance :</strong> <span id="info-dob">{{ user.birthdate or 'Non renseigné'
+                      }}</span></p>
+                  <p><strong>Adresse :</strong> <span id="info-adresse">{{ user.address or 'Non renseigné' }}</span></p>
+                  <p><strong>Profession :</strong> <span id="info-profession">{{ user.profession or 'Non renseigné'
+                      }}</span></p>
+                </div>
+
+                <!-- ✏️ Bouton pour modifier -->
+                <button class="btn btn-outline-primary btn-sm mt-2" data-bs-toggle="modal"
+                  data-bs-target="#editProfileModal">
+                  Modifier le profil
+                </button>
+
+                <div class="text-end mt-3">
+                  <small class="text-muted">Total vidéos analysées : {{ result.total }}</small>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Colonne droite -->
+        <div class="col-md-8 d-flex flex-column">
+          <!-- Analyse -->
+          <!-- Bloc avec onglets : Analyse, Tendances, Influenceurs -->
+          <div class="card shadow mb-4 flex-grow-1">
+            <div class="card-body">
+              <h3 class="section-title">Analyses</h3>
+
+              <!-- Onglets navigation -->
+              <ul class="nav nav-tabs" id="dashboardTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link active" id="interests-tab" data-bs-toggle="tab"
+                    data-bs-target="#interests-pane" type="button" role="tab" aria-controls="interests-pane"
+                    aria-selected="true">
+                    Centres d'intérêt
+                  </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link" id="analysis-tab" data-bs-toggle="tab" data-bs-target="#analysis-pane"
+                    type="button" role="tab" aria-controls="analysis-pane" aria-selected="false">
+                    Contenu
+                  </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link position-relative" id="trends-tab" data-bs-toggle="tab"
+                    data-bs-target="#trends-pane" type="button" role="tab" aria-controls="trends-pane"
+                    aria-selected="false">
+                    Tendances
+                    {% if alerts.trends %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                      {{ alerts.trends|length }}
+                    </span>
+                    {% endif %}
+                  </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link position-relative" id="influencers-tab" data-bs-toggle="tab"
+                    data-bs-target="#influencers-pane" type="button" role="tab" aria-controls="influencers-pane"
+                    aria-selected="false">
+                    Influenceurs
+                    {% if alerts.influencers %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                      {{ alerts.influencers|length }}
+                    </span>
+                    {% endif %}
+                  </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link position-relative" id="frequency-tab" data-bs-toggle="tab"
+                    data-bs-target="#frequency-pane" type="button" role="tab" aria-controls="frequency-pane"
+                    aria-selected="false">
+                    Fréquences
+                    {% set total_frequency_alerts = alerts.frequencies.hourly_alert|length +
+                    alerts.frequencies.timeslot_alert|length %}
+                    {% if total_frequency_alerts > 0 %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                      {{ total_frequency_alerts }}
+                    </span>
+                    {% endif %}
+
+                  </button>
+
+                </li>
+              </ul>
+
+
+              <!-- Contenu des onglets -->
+              <div class="tab-content mt-3" id="dashboardTabsContent">
+
+                <!-- Centres d'intérêt -->
+                <div class="tab-pane fade show active" id="interests-pane" role="tabpanel"
+                  aria-labelledby="interests-tab">
+                  <div class="card mt-4 shadow">
+                    <div class="card-body text-center">
+                      <h5 class="card-title mb-3">Centres d'intérêt des comptes suivis</h5>
+                      <a href="#" data-bs-toggle="modal" data-bs-target="#modalInterests">
+                        <img src="{{ url_for('static', filename='img/communities_analysis_user_2.png') }}"
+                          alt="Centres d'intérêt" class="img-fluid img-thumbnail zoomable-image"
+                          style="max-height: 450px; cursor: zoom-in;">
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Contenu -->
+                <div class="tab-pane fade" id="analysis-pane" role="tabpanel" aria-labelledby="analysis-tab">
+                  <div class="row">
+                    <div class="col-md-6 text-center">
+                      <h6>📊 Fréquence des hashtags</h6>
+                      <a href="#" data-bs-toggle="modal" data-bs-target="#modalHashtags">
+                        <img src="{{ images['hashtags'] }}" class="analysis-image" alt="Bar Chart">
+                      </a>
+                    </div>
+                    <div class="col-md-6 text-center graph-container">
+                      <h6>🕸️ Réseau des catégories</h6>
+                      <a href="#" data-bs-toggle="modal" data-bs-target="#modalGraph">
+                        <img src="{{ images['graph'] }}" class="analysis-image" alt="Category Graph">
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Tendances -->
+                <div class="tab-pane fade" id="trends-pane" role="tabpanel" aria-labelledby="trends-tab">
+                  <div class="position-relative text-center">
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#modalTrends">
+                      <img src="{{ images['trends'] }}" class="analysis-image enlarged" alt="Popular Trends">
+                    </a>
+                    {% if alerts.trends %}
+                    <button class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2" data-bs-toggle="modal"
+                      data-bs-target="#trendsModal">
+                      ⚠️ {{ alerts.trends | length }} alerte{{ 's' if alerts.trends|length > 1 }}
+                    </button>
+                    {% endif %}
+                  </div>
+                  <p class="text-muted mt-2 text-center">Analyse des hashtags populaires avec détection des mots
+                    problématiques.</p>
+                </div>
+
+                <!-- Influenceurs -->
+                <div class="tab-pane fade" id="influencers-pane" role="tabpanel" aria-labelledby="influencers-tab">
+                  <div class="position-relative text-center">
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#modalInfluencers">
+                      <img src="{{ images['influencers'] }}" class="analysis-image enlarged" alt="Influencers Graph">
+                    </a>
+                    {% if alerts.influencers %}
+                    <button class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2" data-bs-toggle="modal"
+                      data-bs-target="#influencersModal">
+                      ⚠️ {{ alerts.influencers | length }} alerte{{ 's' if alerts.influencers|length > 1 }}
+                    </button>
+                    {% endif %}
+                  </div>
+                  <p class="text-muted mt-2 text-center">Classement des influenceurs avec mise en évidence des contenus
+                    sensibles.</p>
+                </div>
+
+                <!-- Fréquences -->
+                <div class="tab-pane fade" id="frequency-pane" role="tabpanel" aria-labelledby="frequency-tab">
+                  <div class="row">
+                    <!-- Image 1 : Commentaires par heure -->
+                    <div class="col-md-6 text-center position-relative">
+                      <h6>🕑 Commentaires par heure</h6>
+                      <a href="#" data-bs-toggle="modal" data-bs-target="#modalHours">
+                        <img src="{{ url_for('static', filename='img/FrequenceVisionnageParHeure.png') }}"
+                          class="analysis-image enlarged" alt="Commentaires par heure">
+                      </a>
+                      {% if alerts.frequencies.hourly_alert %}
+                      <button class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2" data-bs-toggle="modal"
+                        data-bs-target="#frequencyModal">
+                        ⚠️ {{ alerts.frequencies.hourly_alert | length }} pic{{ 's' if
+                        alerts.frequencies.hourly_alert|length > 1 }}
+                      </button>
+                      {% endif %}
+                    </div>
+
+                    <!-- Image 2 : Répartition par période -->
+                    <div class="col-md-6 text-center position-relative">
+                      <h6>🌗 Répartition par période</h6>
+                      <a href="#" data-bs-toggle="modal" data-bs-target="#modalTimeslot">
+                        <img src="{{ url_for('static', filename='img/FrequenceVisionnageParTrancheJournee.png') }}"
+                          class="analysis-image enlarged" alt="Commentaires par tranche horaire">
+                      </a>
+                      {% if alerts.frequencies.timeslot_alert %}
+                      <button class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2" data-bs-toggle="modal"
+                        data-bs-target="#frequencyModal">
+                        ⚠️ {{ alerts.frequencies.timeslot_alert | length }} pic{{ 's' if
+                        alerts.frequencies.timeslot_alert|length > 1 }}
+                      </button>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  <p class="text-muted mt-3 text-center">Analyse des heures d'activité des commentaires TikTok.</p>
+                </div>
+
+
+
+            </div>
+            <br><br><br>
+
+
+            <!-- Documents -->
+            <div class="card shadow mt-auto">
+              <div class="card-body">
+                <h5 class="section-title">Documents</h5>
+                <form method="POST" enctype="multipart/form-data">
+                  <div class="input-group">
+                    <input type="file" class="form-control" name="file">
+                    <button class="btn btn-outline-primary" type="submit">Uploader</button>
+                  </div>
+                </form>
+                <hr>
+                <ul class="list-group mt-3">
+                  <li class="list-group-item">document1.pdf</li>
+                  <li class="list-group-item">document2.pdf</li>
+                  <!-- Dynamique -->
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Modal pour les tendances -->
+    <div class="modal fade" id="trendsModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-danger text-white">
+            <h5 class="modal-title">⚠️ Hashtags problématiques</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            {% set preview = alerts.trends[:5] %}
+            <ul>
+              {% for tag in preview %}
+              <li>{{ tag }}</li>
+              {% endfor %}
+            </ul>
+            {% if alerts.trends|length > 5 %}
+            <details>
+              <summary class="text-primary mt-2">Voir plus</summary>
+              <ul class="mt-2">
+                {% for tag in alerts.trends[5:] %}
+                <li>{{ tag }}</li>
+                {% endfor %}
+              </ul>
+            </details>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal pour les influenceurs -->
+    <div class="modal fade" id="influencersModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-danger text-white">
+            <h5 class="modal-title">⚠️ Influenceurs problématiques</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            {% set preview = alerts.influencers[:5] %}
+            <ul>
+              {% for item in preview %}
+              <li>{{ item }}</li>
+              {% endfor %}
+            </ul>
+            {% if alerts.influencers|length > 5 %}
+            <details>
+              <summary class="text-primary mt-2">Voir plus</summary>
+              <ul class="mt-2">
+                {% for item in alerts.influencers[5:] %}
+                <li>{{ item }}</li>
+                {% endfor %}
+              </ul>
+            </details>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Grand Format Tendances -->
+    <div class="modal fade" id="modalTrends" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-light">
+            <h5 class="modal-title">Tendances en grand format</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body text-center">
+            <img src="{{ images['trends'] }}" style="width: 100%; max-height: 80vh; object-fit: contain;"
+              alt="Trend Zoom">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Grand Format Influenceurs -->
+    <div class="modal fade" id="modalInfluencers" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-light">
+            <h5 class="modal-title">Influenceurs en grand format</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body text-center">
+            <img src="{{ images['influencers'] }}" style="width: 100%; max-height: 80vh; object-fit: contain;"
+              alt="Influencers Zoom">
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <!-- Modal Modification Profil -->
+    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form method="POST" enctype="multipart/form-data">
+            <div class="modal-header">
+              <h5 class="modal-title">Modifier les informations</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-2">
+                <label class="form-label">Nom</label>
+                <input type="text" name="name" class="form-control" value="{{ user.name }}">
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Prénom</label>
+                <input type="text" name="firstname" class="form-control" value="{{ user.firstname }}">
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Date de naissance</label>
+                <input type="date" name="birthdate" class="form-control" value="{{ user.birthdate }}">
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Adresse</label>
+                <input type="text" name="address" class="form-control" value="{{ user.address }}">
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Profession</label>
+                <input type="text" name="profession" class="form-control" value="{{ user.profession }}">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary">Enregistrer</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🔍 Modal Grand Format Hashtags -->
+    <div class="modal fade" id="modalHashtags" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-light">
+            <h5 class="modal-title">Hashtags en grand format</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body text-center">
+            <img src="{{ images['hashtags'] }}" style="width: 100%; max-height: 80vh; object-fit: contain;"
+              alt="Hashtags Zoom">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🔍 Modal Grand Format Graph -->
+    <div class="modal fade" id="modalGraph" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-light">
+            <h5 class="modal-title">Graph des catégories en grand format</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body text-center">
+            <img src="{{ images['graph'] }}" style="width: 100%; max-height: 80vh; object-fit: contain;"
+              alt="Category Graph Zoom">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🔍 Modal Grand Format Heures -->
+    <div class="modal fade" id="modalHours" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-light">
+            <h5 class="modal-title">Commentaires par heure</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body text-center">
+            <img src="{{ url_for('static', filename='img/FrequenceVisionnageParHeure.png') }}"
+              style="width: 100%; max-height: 80vh; object-fit: contain;" alt="Commentaires Heure Zoom">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🔍 Modal Grand Format Périodes -->
+    <div class="modal fade" id="modalTimeslot" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-light">
+            <h5 class="modal-title">Commentaires par tranche horaire</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body text-center">
+            <img src="{{ url_for('static', filename='img/FrequenceVisionnageParTrancheJournee.png') }}"
+              style="width: 100%; max-height: 80vh; object-fit: contain;" alt="Commentaires Période Zoom">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🔍 Modal Grand Format Centres d'intérêt -->
+    <div class="modal fade" id="modalInterests" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-light">
+            <h5 class="modal-title">Centres d'intérêt - Vue grand format</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body text-center">
+            <img src="{{ url_for('static', filename='img/communities_analysis_user_2.png') }}"
+              style="width: 100%; max-height: 80vh; object-fit: contain;" alt="Zoom Centres d'intérêt">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="frequencyAlertModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title">⚠️ Pics d'activité détectés</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            {% if alerts.frequencies.hourly_alert %}
+            <p><strong>Heures avec +1000 vues :</strong></p>
+            <ul>
+              {% for h in alerts.frequencies.hourly_alert %}
+              <li>{{ h }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+            {% if alerts.frequencies.timeslot_alert %}
+            <p><strong>Tranches avec +6000 vues :</strong></p>
+            <ul>
+              {% for t in alerts.frequencies.timeslot_alert %}
+              <li>{{ t }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal : Alerte Fréquences -->
+    <div class="modal fade" id="frequencyModal" tabindex="-1" aria-labelledby="frequencyModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-scrollable modal-sm">
+        <div class="modal-content">
+          <div class="modal-header bg-danger text-white">
+            <h5 class="modal-title">⚠️ Pics d'activité détectés</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+          </div>
+          <div class="modal-body">
+            {% if alerts.frequencies.hourly_alert %}
+            <strong>Heures avec +1000 vues :</strong>
+            <ul>
+              {% for hour in alerts.frequencies.hourly_alert %}
+              <li>{{ hour }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+            {% if alerts.frequencies.timeslot_alert %}
+            <strong>Tranches avec +6000 vues :</strong>
+            <ul>
+              {% for slot in alerts.frequencies.timeslot_alert %}
+              <li>{{ slot }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      const sidebar = document.getElementById("alertSidebar");
+      const toggleBtn = document.getElementById("toggleSidebar");
+
+      toggleBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("active");
+      });
+    </script>
+
+
+</body>
+
+</html>
