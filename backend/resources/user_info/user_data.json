@@ -1,0 +1,24 @@
+{
+    "users": [
+        {
+            "id": 2,
+            "name": "Luc",
+            "surname": "Delarue",
+            "age": 24,
+            "email": "test@test.com",
+            "phone": "+41792383499",
+            "address": "Rue de la Sarine 18",
+            "profession": "DevOps"
+        },
+        {
+            "id": 3,
+            "name": "Grechen",
+            "surname": "Meyer",
+            "age": 24,
+            "email": "test@test.com",
+            "phone": "+41792383499",
+            "address": "Rue de la Sarine 18",
+            "profession": "Etudiante"
+        }
+    ]
+}

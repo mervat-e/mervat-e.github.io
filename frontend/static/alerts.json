@@ -1,0 +1,20 @@
+{
+  "trends_alert": [
+    "beauty standards"
+  ],
+  "influencers_alert": [
+    "noeat"
+  ],
+  "frequency_alerts": {
+    "hourly_alert": [
+      "21h",
+      "20h",
+      "22h",
+      "19h",
+      "17h"
+    ],
+    "timeslot_alert": [
+      "Soir"
+    ]
+  }
+}
