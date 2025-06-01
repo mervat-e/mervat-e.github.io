@@ -1,33 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Pyodide Worker Example</title>
+  <meta charset="UTF-8" />
+  <title>Pyodide Panel Demo</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+    }
+    textarea, pre {
+      width: 100%;
+      font-family: monospace;
+      font-size: 14px;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 8px 16px;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    pre {
+      background: #f0f0f0;
+      min-height: 50px;
+    }
+  </style>
 </head>
 <body>
-  <h1>Pyodide Worker Demo</h1>
-  <button id="run">Run Python Code</button>
+  <h1>Run Python in Browser with Pyodide</h1>
+  <textarea id="code" rows="5">
+print("Hello from Pyodide!")
+for i in range(3):
+    print("Line", i + 1)
+  </textarea>
+  <button onclick="runCode()">Run</button>
   <pre id="output"></pre>
 
   <script>
-    const output = document.getElementById('output');
-    const worker = new Worker('worker.js');
-
-    document.getElementById('run').addEventListener('click', () => {
-      worker.postMessage({
-        python: `
-def greet(name):
-    return f"Hello, {name}!"
-
-greet("World")
-`
-      });
-    });
+    const worker = new Worker("worker.js");
 
     worker.onmessage = (event) => {
-      output.textContent = event.data;
+      document.getElementById("output").textContent = event.data;
     };
+
+    function runCode() {
+      const code = document.getElementById("code").value;
+      worker.postMessage({ python: code });
+    }
   </script>
 </body>
-
 </html>
